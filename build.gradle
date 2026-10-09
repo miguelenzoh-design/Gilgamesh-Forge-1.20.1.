@@ -1,0 +1,43 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+group = 'com.gilgamesh'
+version = '1.0.0'
+base { archivesName = 'Gilgamesh' }
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    copyIdeResources = true
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'info'
+            mods { gilgamesh { source sourceSets.main } }
+        }
+        client {}
+        server { args '--nogui' }
+    }
+}
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.4.5'
+}
+tasks.named('processResources', ProcessResources).configure {
+    var props = [mod_id: 'gilgamesh', mod_name: 'Gilgamesh', mod_version: project.version]
+    inputs.properties props
+    filesMatching(['META-INF/mods.toml']) { expand props }
+}
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+            'Specification-Title': 'gilgamesh',
+            'Specification-Vendor': 'Community',
+            'Specification-Version': '1',
+            'Implementation-Title': project.name,
+            'Implementation-Version': project.version
+        ])
+    }
+    finalizedBy 'reobfJar'
+}
